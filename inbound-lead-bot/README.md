@@ -13,4 +13,4 @@ A Telegram bot built with N8n + Google Sheets that automatically qualifies new u
 - N8n (open-source automation)
 - Google Sheets
 
-## Status: ⚙️ In progress
+## Status: ⚙️ In Progress
