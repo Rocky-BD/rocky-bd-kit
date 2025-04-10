@@ -1,4 +1,4 @@
-# 🚀 Rocky's BD Kit – AI Agents & Automations for Web3 Growth
+# Rocky's BD Kit – AI Agents & Automations for Web3 Growth
 
 I’m Rocky – a Business Developer who builds automations that close deals while you sleep.
 
@@ -14,16 +14,16 @@ Everything here is open source, practical, and built for Web3 projects that move
 
 ## 🔧 What's Inside
 
-### 🤖 Inbound Lead Bot
+### - Inbound Lead Bot
 Qualifies users in Telegram or Discord and sends the data to Airtable/Notion.
 
-### ✉️ Cold Outreach Agent
+### - Cold Outreach Agent
 Scrapes X/LinkedIn data, generates GPT-based cold messages, logs & tracks.
 
-### 💸 Crypto Payment Bot
+### - Crypto Payment Bot
 Lets users pay in ETH/SOL via Telegram and get access to gated content.
 
-### 🧠 BD Playbook
+### - BD Playbook
 My real BD frameworks, cold DM scripts, and deal-closing systems.
 
 ---
