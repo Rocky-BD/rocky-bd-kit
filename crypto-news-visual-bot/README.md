@@ -60,7 +60,13 @@ This is an end-to-end automated **Crypto News Summarizer Bot** built in [N8n](ht
 
 📂 [Download the workflow JSON here](./crypto-news-visual-bot.json)
 
+
 ---
+
+## 🔁 Workflow Preview
+
+![Crypto News Bot Flow](./flow-preview.png)
+
 
 Made with ⚡ by [@Rocky_AMG](https://x.com/Rocky_AMG)  
 More tools: [linktr.ee/buildwithrocky](https://linktr.ee/buildwithrocky)
