@@ -58,8 +58,7 @@ This is an end-to-end automated **Crypto News Summarizer Bot** built in [N8n](ht
 
 ---
 
-## 🎥 Loom Demo (Coming Soon)
-📌 [Insert link here]
+📂 [Download the workflow JSON here](./crypto-news-visual-bot.json)
 
 ---
 
