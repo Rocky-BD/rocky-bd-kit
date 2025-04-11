@@ -1,0 +1,476 @@
+{
+  "name": "Crypto News Visual Bot",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "7c4750ba-1cbc-4695-aeba-4ac7edf2f97a",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        3200,
+        -280
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a cryptocurrency blogger focused on crafting engaging Twitter posts for the crypto community. Your task is to summarize the latest crypto news from {{ $json.content }} in a clear, concise, and human-like tone.\n\nGuidelines:\n\nOutput Format: Always provide the output in JSON format, containing the fields \"twitter\" (the actual tweet content) and \"telegram\" (the actual message to be sent to Telegram).\n\nCharacter Limit: Ensure the Twitter post does not exceed 280 characters (including spaces). There is no character limit for the Telegram message.\n\nTone and Voice: Write in a relatable and conversational way to connect with the crypto community – avoid robotic phrasing or overly formal language.\n\nDo not include URLs.\n\n",
+              "role": "system"
+            },
+            {
+              "content": "=Using the details below, generate one Twitter post and one Telegram report/message summarizing all the news from {{ $json.content }}:\n\nConstraints:\n\nCharacter Limit: Keep the Twitter post within 280 characters, including links.\nNeutral Tone: Ensure the tone remains neutral, avoiding personal involvement (e.g., do not use phrases like \"my journey\" or \"I found this interesting\").\nTelegram Report: The Telegram report should be more detailed and in-depth.\nOutput Format: Provide the response in JSON format, structured as follows:\njson\n\n{\n  \"twitter\": \"Your Twitter post here\"\n  \"telegram\": \"Your telegram summary here\"\n}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "id": "e371b70c-1a30-44d9-8a3f-bf76d0ee655c",
+      "name": "Summary news GPT",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1700,
+        -20
+      ],
+      "typeVersion": 1.7,
+      "alwaysOutputData": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OPENAI_API_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Extract the useful information from {{ $json.data }}, keeping only the 'content' and discarding everything else, including the 'title'.\""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1080,
+        0
+      ],
+      "id": "e704ee00-026d-4736-b913-1d9abbd049a4",
+      "name": "ContentExtraction GPT3.5",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OPENAI_API_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 180
+            }
+          ]
+        }
+      },
+      "id": "121cfdff-1ca2-4963-bfd0-8dd41bc8ff26",
+      "name": "Set the posting interval",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        120,
+        0
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "url": "https://cryptopanic.com/api/v1/posts/?auth_token=46a3ae4402d9889a3182ebd3981c84ec064b60a5&public=true",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        320,
+        0
+      ],
+      "id": "d4f42f40-bdab-42be-a60c-df9d17ce65f4",
+      "name": "Get Crypto news from  CryptoPanic"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "=message.content"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1480,
+        0
+      ],
+      "id": "d730100c-6ec5-41f5-9f82-6170789bdf20",
+      "name": "Merge all the news together"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "-1002361468197  ",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "={{ $json.caption }}",
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2980,
+        -280
+      ],
+      "id": "922901a9-ae53-4cdf-b7c6-41a686a77dcb",
+      "name": "Send a news report to Telegram",
+      "webhookId": "0937b258-1fff-4628-bff2-c0c6a2b3cfea",
+      "credentials": {
+        "telegramApi": {
+          "id": "TELEGRAM_API_CREDENTIAL_ID",
+          "name": "lead generator tg"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "id": "ce2a17d4-01f7-475c-a9ec-7b069e94300e",
+      "name": "Visit the News Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        820,
+        0
+      ],
+      "typeVersion": 4.2,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "language": "python",
+        "pythonCode": "from datetime import datetime, timedelta\n\n# Obtain Local UTC time\nnow = datetime.utcnow()\n\n# Initialize an empty list to store all qualifying news items.\nfiltered_news_items = []\n\n# Iterate through the input data\nfor item in _input.all():\n    # Make sure every item contains JSON data\n    if hasattr(item, 'json'):\n        # Filter news items published within the last XX minutes\n        if \"results\" in item.json:\n            for news in item.json[\"results\"]:\n                if \"published_at\" in news:\n                    published_time = datetime.strptime(news[\"published_at\"], \"%Y-%m-%dT%H:%M:%SZ\")\n                    time_difference = now - published_time\n                    if time_difference <= timedelta(minutes=30) and news[\"kind\"] == \"news\":\n                        # Add the news that meets the criteria to the results.\n                        filtered_news_items.append({\n                            #\"kind\": news[\"kind\"],\n                           # \"domain\": news[\"domain\"],           \n                            \"title\": news[\"title\"],\n                            #\"published_at\": news[\"published_at\"],\n                            \"url\": news[\"url\"],\n                           \n                          \n                        })\n\n#  Return the most recently published news items (structured data).\nreturn filtered_news_items"
+      },
+      "id": "8d029c81-dcf2-4e12-826e-ae58f7782180",
+      "name": "Extract title and URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        580,
+        0
+      ],
+      "executeOnce": true,
+      "typeVersion": 2,
+      "alwaysOutputData": true,
+      "retryOnFail": false,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "A photorealistic 4K image of {{ $json.message_content.telegram }} Create a realistic digital illustration with no text, directly visualizing the following crypto news: \"{{dynamic_input}}\". The image must clearly and accurately reflect the situation described, using specific objects, people, or environments where needed. Avoid generic icons or abstract graphics. Style should be clear, news-appropriate, and professional. No words, watermarks, or logos in the image.",
+        "options": {
+          "size": "1024x1024"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2020,
+        -200
+      ],
+      "id": "97169f77-0a3b-4d97-bd2a-d75788c01837",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAi account 5"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        2240,
+        -200
+      ],
+      "id": "1b5521ff-c6f5-4ca5-949c-c3aae1735b01",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fda7ae07-84b0-4a97-ad64-f373a33c17a6",
+              "leftValue": "{{ $json.caption }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "3e6d54f0-3309-43a2-b03e-a725dd7ef79a",
+              "leftValue": "{{ $binary.data }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2680,
+        -200
+      ],
+      "id": "d82ae8f3-76a2-4900-a37d-6d8fb3d80a4d",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "-100123456789",
+        "text": "{{ $json.caption }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2980,
+        -40
+      ],
+      "id": "a157bfdc-2867-4f18-8d3f-c76b58f4f130",
+      "name": "Telegram",
+      "webhookId": "5174dda7-cf8a-45bd-8e00-7f6b2bce5a17",
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nlet caption = \"Caption not found\";\nlet binaryData = null;\n\n// Look for the caption and image in the items\nfor (const item of items) {\n  if (item.json.message && item.json.message.content && item.json.message.content.telegram) {\n    caption = item.json.message.content.telegram;\n  }\n  if (item.binary && item.binary.data) {\n    binaryData = item.binary.data;\n  }\n}\n\n// Return a single item with both caption and image (if present)\nreturn [{\n  json: {\n    caption: caption\n  },\n  binary: binaryData ? { data: binaryData } : {}\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2460,
+        -200
+      ],
+      "id": "512cc831-9b1e-461d-a4a6-80abcd5278d5",
+      "name": "Combine Caption and image"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Summary news GPT": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "ContentExtraction GPT3.5": {
+      "main": [
+        [
+          {
+            "node": "Merge all the news together",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set the posting interval": {
+      "main": [
+        [
+          {
+            "node": "Get Crypto news from  CryptoPanic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Crypto news from  CryptoPanic": {
+      "main": [
+        [
+          {
+            "node": "Extract title and URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge all the news together": {
+      "main": [
+        [
+          {
+            "node": "Summary news GPT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a news report to Telegram": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Visit the News Page": {
+      "main": [
+        [
+          {
+            "node": "ContentExtraction GPT3.5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract title and URL": {
+      "main": [
+        [
+          {
+            "node": "Visit the News Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Combine Caption and image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a news report to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        []
+      ]
+    },
+    "Combine Caption and image": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "eee5ba18-06fc-467d-a93f-b878a15a5ff0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cc16d520b9e0c28e42afb6fc06f03f6ae054715a7b6fd807ec6d7ceede867417"
+  },
+  "id": "NfEfSGiq0Da93256",
+  "tags": []
+}
